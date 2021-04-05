@@ -27,13 +27,19 @@ int main() {
 		try {
 			path_principia = GetStringValueFromHKCU(L"SOFTWARE\\Bithack\\Principia\\", L"");
 		} catch (exception& e) {
-			cout << "AAAAA REGISTRY THING WENT BOOM HELP ";
+			cout << "AAAAA REGISTRY THING WENT BOOM HELP - ";
 			cout << e.what();
 		}
+
 		xdelta = "xdelta3.dll";
-	#else // Linux-ish. This is using my setup, someone else might have a different setup
+	#else // Linux-ish. This is using my setup, someone else might have a different setup.
 		path_mods = "/home/administrator/.principia/mods";
 		path_principia = "/usr/share/principia";
+
+		// If you just use the regular windows installer under wine it should have these paths. replace [username] with your account username
+		//path_mods = "/home/[username]/.wine/drive_c/Users/[username]/Principia/mods";
+		//path_principia = "/home/[username]/.wine/drive_c/Program Files (x86)/Principia";
+
 		xdelta = "xdelta3";
 	#endif // _WIN32
 
