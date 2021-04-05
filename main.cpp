@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <unistd.h>
 #if _WIN32
-#include <windows.h>
-#include "registry.h"
+	#include <windows.h>
+	#include "registry.h"
 #endif // _WIN32
 
 using namespace std;
@@ -19,21 +19,21 @@ int main() {
 	string xdelta;
 
 	#if _WIN32 // Windows code for getting necessary paths
-	// TODO: make dynamic. principia uses the USERPROFILE envvar internally so we should just mimic this
-	path_mods = "Z:/home/administrator/.principia/mods";
+		// TODO: make dynamic. principia uses the USERPROFILE envvar internally so we should just mimic this
+		path_mods = "Z:/home/administrator/.principia/mods";
 
-	// get principia path from registry...
-	try {
-		path_principia = GetStringValueFromHKCU(L"SOFTWARE\\Bithack\\Principia\\", L"");
-	} catch (exception& e) {
-		cout << "AAAAA REGISTRY THING WENT BOOM HELP ";
-		cout << e.what();
-	}
-	xdelta = "xdelta3.dll";
+		// get principia path from registry...
+		try {
+			path_principia = GetStringValueFromHKCU(L"SOFTWARE\\Bithack\\Principia\\", L"");
+		} catch (exception& e) {
+			cout << "AAAAA REGISTRY THING WENT BOOM HELP ";
+			cout << e.what();
+		}
+		xdelta = "xdelta3.dll";
 	#else // Linux-ish. This is using my setup, someone else might have a different setup
-	path_mods = "/home/administrator/.principia/mods";
-	path_principia = "/usr/share/principia";
-	xdelta = "xdelta3";
+		path_mods = "/home/administrator/.principia/mods";
+		path_principia = "/usr/share/principia";
+		xdelta = "xdelta3";
 	#endif // _WIN32
 
 	cout << "Principia AutoPatcher" << endl;
@@ -79,9 +79,9 @@ int main() {
 	cout << "Launching patched executable!" << endl;
 
 	#ifdef _WIN32
-	temp_cmd = path_principia+"\\.principia.exe";
+		temp_cmd = path_principia+"\\.principia.exe";
 	#else // Use wine for non-windows
-	temp_cmd = "wine "+path_principia+"/.principia.exe";
+		temp_cmd = "wine "+path_principia+"/.principia.exe";
 	#endif // _WIN32
 
 	system(temp_cmd.c_str());
