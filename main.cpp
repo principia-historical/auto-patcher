@@ -19,8 +19,9 @@ int main() {
 	string xdelta;
 
 	#if _WIN32 // Windows code for getting necessary paths
-		// TODO: make dynamic. principia uses the USERPROFILE envvar internally so we should just mimic this
-		path_mods = "Z:/home/administrator/.principia/mods";
+		// get principia home folder using the USERPROFILE envvar, emulating principia behavior.
+		string userprofile = getenv("USERPROFILE");
+		path_mods = userprofile+"/Principia/mods";
 
 		// get principia path from registry...
 		try {
