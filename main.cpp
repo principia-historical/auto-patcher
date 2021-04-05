@@ -69,12 +69,12 @@ int main() {
 
 		temp_cmd += " "+mod.string()+" ";
 	}
-	temp_cmd += " "+path_principia+"/cumbined_patch_extremely_cool_uwu.xdelta";
+	temp_cmd += " \""+path_principia+"/.merged.xdelta\"";
 	system(temp_cmd.c_str());
 
 	cout << "Patching executable with merged xdelta..." << endl;
 
-	temp_cmd = xdelta+" -d -n -f -s \""+path_principia+"/principia.exe\" \""+path_principia+"/cumbined_patch_extremely_cool_uwu.xdelta\" \""+path_principia+"/.principia.exe\"";
+	temp_cmd = xdelta+" -d -n -f -s \""+path_principia+"/principia.exe\" \""+path_principia+"/.merged.xdelta\" \""+path_principia+"/.principia.exe\"";
 	system(temp_cmd.c_str());
 
 	cout << "Launching patched executable!" << endl;
