@@ -16,8 +16,10 @@ int main() {
 
 	string path_mods;
 	string path_principia;
+	string xdelta;
 
-	#if _WIN32
+	#if _WIN32 // Windows code for getting necessary paths
+	// TODO: make dynamic. principia uses the USERPROFILE envvar internally so we should just mimic this
 	path_mods = "Z:/home/administrator/.principia/mods";
 
 	// get principia path from registry...
@@ -27,9 +29,11 @@ int main() {
 		cout << "AAAAA REGISTRY THING WENT BOOM HELP ";
 		cout << e.what();
 	}
-	#else
+	xdelta = "xdelta3.dll";
+	#else // Linux-ish. This is using my setup, someone else might have a different setup
 	path_mods = "/home/administrator/.principia/mods";
 	path_principia = "/usr/share/principia";
+	xdelta = "xdelta3";
 	#endif // _WIN32
 
 	cout << "Principia AutoPatcher" << endl;
@@ -49,42 +53,37 @@ int main() {
 	}
 	cout << "Found " << mod_count << " mods!" << endl;
 
-	cout << "Preparing for patching..." << endl;
+	cout << "Merging xdelta patches into one." << endl;
 
-	// TODO: Replace this stupid command shit with some sort of native IO functions.
-	#ifdef _WIN32
-	temp_cmd = "copy /Y \""+path_principia+"\\principia.exe\" \""+path_principia+"\\.principia.exe\"";
-	#else
-	temp_cmd = "cp \""+path_principia+"/principia.exe\" \""+path_principia+"/.principia.exe\"";
-	#endif // _WIN32
-
-	cout << temp_cmd << endl;
-	system(temp_cmd.c_str());
-
+	int i = 0;
+	temp_cmd = xdelta+" merge -f "; // Do "force" to overwrite a possible existing merged xdelta file.
 	for (filesystem::path mod : mods) {
 		if (mod == "") break;
+		i++;
 
-		cout << "Patching mod " << mod.stem() << "." << endl;
+		// workaround for an xdelta quirk where the last xdelta patch to be merged shouldn't be preceeded with an -m
+		if (i != mod_count) {
+			temp_cmd += " -m ";
+		}
 
-		#ifdef _WIN32
-		temp_cmd = "xdelta3.dll -d -n -f -s \""+path_principia+"\\.principia.exe\" "+mod.string()+" \""+path_principia+"\\.principia.exe\"";
-		#else
-		temp_cmd = "xdelta3 -d -n -f -s \""+path_principia+"/.principia.exe\" "+mod.string()+" \""+path_principia+"/.principia.exe\"";
-		#endif // _WIN32
-
-		cout << temp_cmd << endl;
-		system(temp_cmd.c_str());
+		temp_cmd += " "+mod.string()+" ";
 	}
+	temp_cmd += " "+path_principia+"/cumbined_patch_extremely_cool_uwu.xdelta";
+	system(temp_cmd.c_str());
+
+	cout << "Patching executable with merged xdelta..." << endl;
+
+	temp_cmd = xdelta+" -d -n -f -s \""+path_principia+"/principia.exe\" \""+path_principia+"/cumbined_patch_extremely_cool_uwu.xdelta\" \""+path_principia+"/.principia.exe\"";
+	system(temp_cmd.c_str());
 
 	cout << "Launching patched executable!" << endl;
 
 	#ifdef _WIN32
 	temp_cmd = path_principia+"\\.principia.exe";
-	#else
+	#else // Use wine for non-windows
 	temp_cmd = "wine "+path_principia+"/.principia.exe";
 	#endif // _WIN32
 
-	cout << temp_cmd << endl;
 	system(temp_cmd.c_str());
 
 	return 0;
