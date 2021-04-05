@@ -2,6 +2,10 @@
 #include <string>
 #include <filesystem>
 #include <unistd.h>
+#if _WIN32
+#include <windows.h>
+#include "registry.h"
+#endif // _WIN32
 
 using namespace std;
 
@@ -10,18 +14,29 @@ int main() {
 	filesystem::directory_entry mods[256];
 	string temp_cmd;
 
-	string path_mods = "/home/administrator/.principia/mods/";
-	//string path_temp_principia = "/home/administrator/.principia/cache/principia.exe";
-	string path_temp_principia = "/usr/share/principia/.principia.exe";
-	string path_exec_principia = "/usr/share/principia/principia.exe";
+	string path_mods;
+	string path_principia;
 
-	cout << endl << endl;
+	#if _WIN32
+	path_mods = "Z:/home/administrator/.principia/mods";
+
+	// get principia path from registry...
+	try {
+		path_principia = GetStringValueFromHKCU(L"SOFTWARE\\Bithack\\Principia\\", L"");
+	} catch (exception& e) {
+		cout << "AAAAA REGISTRY THING WENT BOOM HELP ";
+		cout << e.what();
+	}
+	#else
+	path_mods = "/home/administrator/.principia/mods";
+	path_principia = "/usr/share/principia";
+	#endif // _WIN32
+
 	cout << "Principia AutoPatcher" << endl;
 	cout << "=====================" << endl;
 
 	cout << "Principia mod path: " << path_mods << endl;
-	cout << "Principia txe path: " << path_temp_principia << endl;
-	cout << "Principia exe path: " << path_exec_principia << endl;
+	cout << "Principia exe path: " << path_principia << endl;
 
 	cout << "Searching for mods..." << endl;
 
@@ -35,20 +50,41 @@ int main() {
 	cout << "Found " << mod_count << " mods!" << endl;
 
 	cout << "Preparing for patching..." << endl;
-	temp_cmd = "cp "+path_exec_principia+" "+path_temp_principia;
+
+	// TODO: Replace this stupid command shit with some sort of native IO functions.
+	#ifdef _WIN32
+	temp_cmd = "copy /Y \""+path_principia+"\\principia.exe\" \""+path_principia+"\\.principia.exe\"";
+	#else
+	temp_cmd = "cp \""+path_principia+"/principia.exe\" \""+path_principia+"/.principia.exe\"";
+	#endif // _WIN32
+
+	cout << temp_cmd << endl;
 	system(temp_cmd.c_str());
 
 	for (filesystem::path mod : mods) {
 		if (mod == "") break;
 
 		cout << "Patching mod " << mod.stem() << "." << endl;
-		temp_cmd = "xdelta3 -d -n -f -s "+path_temp_principia+" "+mod.string()+" "+path_temp_principia;
+
+		#ifdef _WIN32
+		temp_cmd = "xdelta3.dll -d -n -f -s \""+path_principia+"\\.principia.exe\" "+mod.string()+" \""+path_principia+"\\.principia.exe\"";
+		#else
+		temp_cmd = "xdelta3 -d -n -f -s \""+path_principia+"/.principia.exe\" "+mod.string()+" \""+path_principia+"/.principia.exe\"";
+		#endif // _WIN32
+
+		cout << temp_cmd << endl;
 		system(temp_cmd.c_str());
 	}
 
 	cout << "Launching patched executable!" << endl;
-	chdir("/usr/share/principia/");
-	temp_cmd = "wine "+path_temp_principia;
+
+	#ifdef _WIN32
+	temp_cmd = path_principia+"\\.principia.exe";
+	#else
+	temp_cmd = "wine "+path_principia+"/.principia.exe";
+	#endif // _WIN32
+
+	cout << temp_cmd << endl;
 	system(temp_cmd.c_str());
 
 	return 0;
