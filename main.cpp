@@ -10,7 +10,7 @@
 using namespace std;
 
 int main() {
-	int mod_count;
+	int mod_count = 0;
 	filesystem::directory_entry mods[256];
 	string temp_cmd;
 
@@ -73,7 +73,7 @@ int main() {
 			temp_cmd += " -m ";
 		}
 
-		temp_cmd += " "+mod.string()+" ";
+		temp_cmd += " \""+mod.string()+"\" ";
 	}
 	temp_cmd += " \""+path_principia+"/.merged.xdelta\"";
 	system(temp_cmd.c_str());
@@ -86,9 +86,9 @@ int main() {
 	cout << "Launching patched executable!" << endl;
 
 	#ifdef _WIN32
-		temp_cmd = path_principia+"\\.principia.exe";
+		temp_cmd = "\""+path_principia+"\\.principia.exe\"";
 	#else // Use wine for non-windows
-		temp_cmd = "wine "+path_principia+"/.principia.exe";
+		temp_cmd = "wine \""+path_principia+"/.principia.exe\"";
 	#endif // _WIN32
 
 	system(temp_cmd.c_str());
