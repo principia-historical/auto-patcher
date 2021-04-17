@@ -54,6 +54,18 @@ int main() {
 
 	cout << "Searching for mods..." << endl;
 
+	if (!filesystem::exists(path_mods)) {
+		cout << "No mod folder found, let's just launch the regular executable." << endl;
+
+		#ifdef _WIN32
+			temp_cmd = "\""+path_principia+"\\principia.exe\"";
+		#else // Use wine for non-windows
+			temp_cmd = "wine \""+path_principia+"/principia.exe\"";
+		#endif // _WIN32
+
+		cout << temp_cmd << endl;
+		system(temp_cmd.c_str());
+	}
 	for (const auto & entry : filesystem::directory_iterator(path_mods)) {
 		if (entry.path().extension() == ".xdelta") {
 			cout << "Got mod " << entry.path().stem() << "." << endl;
