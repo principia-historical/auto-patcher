@@ -32,13 +32,16 @@ int main() {
 		}
 
 		xdelta = "xdelta3.dll";
-	#else // Linux-ish. This is using my setup, someone else might have a different setup.
-		path_mods = "/home/administrator/.principia/mods";
-		path_principia = "/usr/share/principia";
-
-		// If you just use the regular windows installer under wine it should have these paths. replace [username] with your account username
-		//path_mods = "/home/[username]/.wine/drive_c/Users/[username]/Principia/mods";
-		//path_principia = "/home/[username]/.wine/drive_c/Program Files (x86)/Principia";
+	#else // Linux-ish. While it should account for all possible setups, your mileage may vary.
+		string user = getenv("USER");
+		// Check how Principia is installed (as a package, or in the default wine prefix)
+		if (filesystem::exists("/usr/share/principia")) {
+			path_mods = "/home/"+user+"/.principia/mods";
+			path_principia = "/usr/share/principia";
+		} else {
+			path_mods = "/home/"+user+"/.wine/drive_c/Users/[username]/Principia/mods";
+			path_principia = "/home/"+user+"/.wine/drive_c/Program Files (x86)/Principia";
+		}
 
 		xdelta = "xdelta3";
 	#endif // _WIN32
