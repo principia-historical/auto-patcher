@@ -3,3 +3,4 @@ obj/
 *.depend
 *.layout
 xdelta3.dll
+build*/
